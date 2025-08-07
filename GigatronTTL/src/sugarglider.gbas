@@ -1,0 +1,57 @@
+_runtimePath_ "runtime"
+_runtimeStart_ &h7FFF
+_arraysStart_ &h7FFF
+_codeRomType_ ROMvX0
+
+def x, y, oldbutton
+
+call initSystem
+
+reset:
+    call resetLevel
+    
+start:
+    call startLevel
+    
+init:
+    call initVars
+
+repeat
+	wait
+    'call waitScanline
+	call handleInput
+	
+&forever
+
+proc initSystem
+    mode 2
+    set FGBG_COLOUR, 0
+endproc
+
+proc resetLevel
+    cls
+endproc
+
+proc startLevel
+   cls
+endproc
+
+proc initVars
+    x = 64
+	y = 20
+endproc
+
+proc handleInput
+    local button
+    
+    button = get("BUTTON_STATE") XOR 255
+	
+  
+    oldbutton = button
+endproc
+
+'proc waitScanline
+'    wait
+'    repeat
+'    until (get("VIDEO_Y") AND 1)
+'endproc
