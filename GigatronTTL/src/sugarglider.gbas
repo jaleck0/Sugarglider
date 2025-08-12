@@ -3,7 +3,20 @@ _runtimeStart_ &h7FFF
 _arraysStart_ &h7FFF
 _codeRomType_ ROMvX0
 
-def x, y, oldbutton
+def x, y, button, sp, dx, dy
+
+const glider_up = 0
+load blit, ../img/gliderup.tga, glider_up + 0, NoFlip
+
+const glider_nt = 1
+load blit, ../img/gliderside.tga, glider_nt + 0, NoFlip
+
+const glider_dw = 2
+load blit, ../img/gliderdown.tga, glider_dw + 0, NoFlip
+
+const logo = 3
+load blit, ../img/logo.tga, logo + 0, NoFlip
+
 
 call initSystem
 
@@ -16,16 +29,39 @@ start:
 init:
     call initVars
 
-repeat
-	wait
-    'call waitScanline
-	call handleInput
+loop:
+    
+    button = get("BUTTON_STATE") 
 	
-&forever
+	dx = (9*dx) / 10
+	dy = (9*dy) / 10
+	
+	if button = 254 then dx = sp		'right
+	if button = 250 then dx = sp : dy = sp	'dwnright
+	if button = 253 then dx = -sp		'left
+	if button = 249 then dx = -sp : dy = sp	'dwnleft
+	if button = 247 then dy = -sp		'up
+	if button = 246 then dx = sp : dy = -sp	'upright
+	if button = 245 then dx = -sp : dy = -sp	'upleft
+	if button = 251 then dy = sp		'down
+	
+	x = x + dx
+	y = y + dy
+	
+	if x.hi > 140 then x.hi = 1
+	if x.hi <= 0 then x.hi = 140
+	
+	if y.hi > 105 then dx = -dx : y.hi = 100
+	if y.hi <= 4 then y.hi = 5
+	
+	
+	blit NoFlip, glider_up, x.hi, y.hi
+
+goto loop
 
 proc initSystem
     mode 2
-    set FGBG_COLOUR, 0
+    set FGBG_COLOUR, &h3F00
 endproc
 
 proc resetLevel
@@ -37,8 +73,23 @@ proc startLevel
 endproc
 
 proc initVars
-    x = 64
-	y = 20
+    x.hi = 71
+	y.hi = 54
+	
+	sp = 500
+	dx = 0
+	dy = 0
+	
+	blit NoFlip, logo, 38, 16
+	
+	'blit NoFlip, glider_nt, x, y
+	
+	'blit NoFlip, glider_up, x-48, y
+	
+	'blit NoFlip, glider_dw, x+48, y
+	
+	at 32,90
+	PRINT "PRESS A TO START"
 endproc
 
 proc handleInput
@@ -46,6 +97,19 @@ proc handleInput
     
     button = get("BUTTON_STATE") XOR 255
 	
+	if button = 254 then dx = sp		'right
+	if button = 250 then dx = sp : dy = sp	'dwnright
+	if button = 253 then dx = -sp		'left
+	if button = 249 then dx = -sp : dy = sp	'dwnleft
+	if button = 247 then dy = -sp		'up
+	if button = 246 then dx = sp : dy = -sp	'upright
+	if button = 245 then dx = -sp : dy = -sp	'upleft
+	if button = 251 then dy = sp		'down
+	
+	
+	
+	x = x + dx
+	y = y + dy
   
     oldbutton = button
 endproc
