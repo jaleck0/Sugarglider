@@ -6,16 +6,19 @@ _codeRomType_ ROMvX0
 def x, y, button, sp, dx, dy, ang
 
 const lutsize = 64
+const maxspd = 1024
+const grav = 10
+
 
 dim sinlut(lutsize - 1) = { 
-	0, 6, 13, 19, 25, 31, 38, 44,
-    50, 56, 62, 69, 75, 81, 87, 93,
-    99, 105, 111, 117, 122, 128, 134, 140,
-    145, 151, 157, 162, 168, 173, 179, 184,
-    189, 195, 200, 205, 210, 216, 221, 226,
-    231, 236, 240, 245, 250, 255, 260, 264,
-    269, 273, 278, 282, 286, 290, 294, 298,
-    302, 306, 310, 313, 317, 320, 324, 327
+	0, 5, 10, 14, 19, 24, 29, 34,
+    39, 43, 48, 54, 58, 63, 68, 73,
+    77, 82, 87, 91, 95, 100, 105, 109,
+    113, 118, 122, 125, 130, 134, 139, 143,
+    148, 152, 156, 160, 164, 168, 173, 177,
+    181, 185, 188, 192, 196, 199, 203, 207,
+    211, 213, 217, 221, 224, 226, 230, 233,
+    236, 239, 242, 244, 247, 250, 252, 256,
 }
 
 const glider_up = 0
@@ -27,7 +30,16 @@ load blit, ../img/gliderside.tga, glider_nt + 0, NoFlip
 const glider_dw = 2
 load blit, ../img/gliderdown.tga, glider_dw + 0, NoFlip
 
-const logo = 3
+const glider_lup = 3
+load blit, ../img/gliderup.tga, glider_lup + 0, NoFlip
+
+const glider_lnt = 4
+load blit, ../img/gliderside.tga, glider_lnt + 0, NoFlip
+
+const glider_ldw = 5
+load blit, ../img/gliderdown.tga, glider_ldw + 0, NoFlip
+
+const logo = 6
 load blit, ../img/logo.tga, logo + 0, NoFlip
 
 
@@ -46,26 +58,25 @@ loop:
     call waitScanline
     button = get("BUTTON_STATE") 
 	
-	dx = (9*dx) / 10
-	dy = (9*dy) / 10
+	'dx = (9*dx) / 10
+	'dy = (9*dy) / 10
 	
-	sp = 0
+	sp = (1*sp) / 10
 	
-	if button == &hfe then ang = ang + 6		'right
-	if button == &hfd then ang = ang - 6		'left
+	if button == &hfe then ang = ang + 512		'right
+	if button == &hfd then ang = ang - 512		'left
 	
-	if button == &hf6 then ang = ang + 70 : sp = 1	'right
-	if button == &hf5 then ang = ang - 70 : sp = 1	'lefts
+	if button == &hf6 then ang = ang + 512 : sp = 2	'right
+	if button == &hf5 then ang = ang - 512 : sp = 2	'lefts
 	
-	if button == &hf7 then sp = 1 	'forward
-	if button == &hfb then sp = -1		'backwards
+	if button == &hf7 then sp = 2 	'forward
+	if button == &hfb then sp = -2		'backwards
 	
+	if button == &hfa then ang = ang + 512 : sp = -2	'right
+	if button == &hf9 then ang = ang - 512 : sp = -2	'left
 	
-	if button == &hfa then ang = ang + 70 : sp = -1	'right
-	if button == &hf9 then ang = ang - 70 : sp = -1	'left
+	call calcdxdy
 	
-	dx = sp * cos(ang)
-	dy = sp * sin(ang+180)
 	
 	at 0,0	
 	PRINT ang.hi
@@ -105,6 +116,8 @@ proc initVars
     x.hi = 71
 	y.hi = 54
 	
+	sp = 0
+	
 	dx = 0
 	dy = 0
 	
@@ -112,18 +125,43 @@ proc initVars
 	
 	blit NoFlip, logo, 38, 16
 	
-	'blit NoFlip, glider_nt, x, y
-	
-	'blit NoFlip, glider_up, x-48, y
-	
-	'blit NoFlip, glider_dw, x+48, y
-	
 	at 32,90
 	PRINT "PRESS A TO START"
 endproc
-
+	
 proc waitScanline
-    wait
     repeat
     until (get("VIDEO_Y") AND 1)
+endproc
+
+proc calcdxdy 
+	'need to improve the speed by reducing the max determination time
+	local angindex
+	
+	angindex = ang.hi%64
+	
+	'angle between 0 and 63 meaning 0 and 90 deg
+	dx = sp * sinlut(lutsize - 1 - angindex) 
+	dy = sp * sinlut(angindex)
+	
+	'angle between 192 and 255 meaning 270 and 360 deg
+	if (ang.hi > 191)
+		dx = sp * sinlut(angindex)
+		dy = sp * -sinlut(lutsize - 1 - angindex)
+		return
+	endif
+	
+	'angle between 128 and 191 meaning 180 and 270 deg
+	if (ang.hi > 127)
+		dx = sp * -sinlut(lutsize - 1 - angindex)
+		dy = sp * -sinlut(angindex)
+		return
+	endif
+	
+	'angle between 64 and 127 meaning 90 and 180 deg
+	if (ang.hi > 63)
+		dx = sp * -sinlut(angindex)
+		dy = sp * sinlut(lutsize - 1 - angindex)
+		return
+	endif
 endproc
