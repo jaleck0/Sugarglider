@@ -4,7 +4,7 @@ _arraysStart_ &h7FFF
 _codeRomType_ ROMvX0
 
 'size of your most complex expression, (temporary variables required)*2, defaults to 8
-_tempVarSize_ 4
+_tempVarSize_ 16
 
 'free string work area, (better not use any of the string runtime!)
 free STRINGWORKAREA
@@ -12,16 +12,25 @@ free STRINGWORKAREA
 'defines the amount of contiguous RAM needed for blit stripes, (in this case 15*6 + 1), also min address and search direction
 _blitStripeChunks_ 15, &h3BA0, &h7FFF, descending
 
-def x, y, button, sp, dx, dy, ang, score, hiscore 
+def x, y, button, sp, dx, dy, ang, score, hiscore, objframe, spikex, spikey, coinx, coiny, asp
 
 const lutsize = 64
-const maxspd = 1024
+const maxspd = 2
+const angsp = 512
 const grav = 10
+
+const checkbit = 16384
 
 const sw = 16
 const sh = 14
 
+const objw = 16
+const objh = 14
 
+const bt_left = &hfd
+const bt_right = &hfe
+
+const bt_start = &h7f
 
 
 dim sinlut(lutsize - 1) = { 
@@ -56,6 +65,27 @@ load blit, ../img/gliderdownl.tga, glider_ldw + 0, NoFlip
 const logo = 6
 load blit, ../img/logo.tga, logo + 0, NoFlip
 
+const spr_coin0 = 7
+load blit, ../img/coin0.tga, spr_coin0 + 0, NoFlip
+
+const spr_coin1 = 8
+load blit, ../img/coin1.tga, spr_coin1 + 0, NoFlip
+
+const spr_coin2 = 9
+load blit, ../img/coin2.tga, spr_coin2 + 0, NoFlip
+
+const spr_coin3 = 10
+load blit, ../img/coin3.tga, spr_coin3 + 0, NoFlip
+
+const spr_spike0 = 11
+load blit, ../img/spike0.tga, spr_spike0 + 0, NoFlip
+
+const spr_spike1 = 12
+load blit, ../img/spike1.tga, spr_spike1 + 0, NoFlip
+
+const spr_spike2 = 13
+load blit, ../img/spike2.tga, spr_spike2 + 0, NoFlip
+
 
 call initSystem
 
@@ -70,39 +100,26 @@ init:
 
 loop:
 	
-
     call waitScanline
     button = get("BUTTON_STATE") 
+	objframe = objframe + 64
 	
-	'dx = (9*dx) / 10
-	'dy = (9*dy) / 10
+	call calcspeed
 	
-	sp = sp / 2
-	
-	if button == &hfe then ang = ang + 512		'right
-	if button == &hfd then ang = ang - 512		'left
-	
-	if button == &hf6 then ang = ang + 512 : sp = 2	'right
-	if button == &hf5 then ang = ang - 512 : sp = 2	'lefts
-	
-	if button == &hf7 then sp = 2 	'forward
-	if button == &hfb then sp = -2		'backwards
-	
-	if button == &hfa then ang = ang + 512 : sp = -2	'right
-	if button == &hf9 then ang = ang - 512 : sp = -2	'left
+	if button == bt_right then ang = ang + angsp		'right
+	if button == bt_left  then ang = ang - angsp		'left
 	
 	call calcdxdy
 	
-	
-	'at 0,0	
-	'PRINT ang.hi
+	at 0,0	
+	PRINT asp
 	'at 0,8	
 	'PRINT dx
 	'at 0,16	
 	'PRINT dy
 	
 	x = x + dx
-	y = y + dy 
+	y = y + dy
 	
 	if x.hi > 142 then x.hi = 1
 	if x.hi <= 0 then x.hi = 142
@@ -110,10 +127,10 @@ loop:
 	if y.hi > 105 then y.hi = 105 : dy = -dy
 	if y.hi <= 4 then y.hi = 5
 	
+	blit NoFlip, spr_coin0 + (objframe.hi % 4), coinx, coiny
+	blit NoFlip, spr_spike0 + (objframe.hi % 3), spikex, spikey
+	
 	call aniplayer
-	
-	
-	
 
 goto loop
 
@@ -134,7 +151,15 @@ proc initVars
     x.hi = 71
 	y.hi = 54
 	
-	sp = 0
+	spikex = 120 
+	spikey = 40
+	
+	coinx = 120
+	coiny = 75
+	
+	objframe = 0
+	
+	sp = maxspd
 	
 	dx = 0
 	dy = 0
@@ -145,6 +170,7 @@ proc initVars
 	
 	at 32,90
 	PRINT "PRESS A TO START"
+	
 endproc
 	
 proc waitScanline
@@ -164,11 +190,42 @@ proc aniplayer
 		gspr = glider_nt
 	endif
 	
-	if dx < 0 
+	if (dx.hi AND 128)
 		gspr = gspr + glider_lup
 	endif
 	
 	blit NoFlip, gspr, x.hi, y.hi
+endproc
+
+proc calcspeed
+	local abdx, abdy, bit , res, temp, tsp
+	
+	abdx = abs(dx)
+	abdy = abs(dy)
+	
+	tsp = abdx.hi * abdx + abdx.lo * abdx + abdy.hi * abdy + abdy.lo * abdy
+	
+	bit = checkbit
+	
+	'while bit > 0
+	'	temp = res OR bit
+	'	if (temp * temp <= tsp) 
+    '       res = tempaa
+    '    endif
+	'wend
+	
+	asp = tsp 
+	
+	
+endproc
+
+proc calcang
+	
+	
+	
+	if (dx == 0 && dy == 0) then return
+	
+	
 endproc
 
 proc calcdxdy 

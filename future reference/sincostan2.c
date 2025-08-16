@@ -76,6 +76,42 @@ uint8_t fixed_atan2_q8_8(int16_t y, int16_t x) {
     else                        return 256 - base_angle;    // Q4
 }
 
+// Integer square root of 16-bit number using binary search
+uint16_t isqrt16(uint16_t x) {
+    uint16_t res = 0;
+    uint16_t bit = 1 << 14;  // Start at highest bit for 16-bit sqrt
+
+    while (bit > 0) {
+        uint16_t temp = res | bit;
+        if (temp * temp <= x) {
+            res = temp;
+        }
+        bit >>= 1;
+    }
+
+    return res;
+}
+
+// Pythagorean theorem using only 16-bit ints in Q8.8
+int16_t pythagoras_q88_16bit(int16_t a_q88, int16_t b_q88) {
+    // Convert to absolute value to avoid overflow from squaring negatives
+    uint16_t a = (a_q88 < 0) ? -a_q88 : a_q88;
+    uint16_t b = (b_q88 < 0) ? -b_q88 : b_q88;
+
+    // Square both: (a^2 >> 8) gives Q16.0 (integer)
+    uint16_t a2 = ((uint32_t)a * a) >> 8;
+    uint16_t b2 = ((uint32_t)b * b) >> 8;
+
+    // Add squares
+    uint16_t sum = a2 + b2;  // Still Q16.0 (unsigned)
+
+    // sqrt(sum) returns Q8.0
+    uint16_t sqrt_result = isqrt16(sum);
+
+    // Convert Q8.0 to Q8.8 by shifting left 8
+    return (int16_t)(sqrt_result << 4);  // Shift 4 instead of 8 for better resolution
+}
+
 int main() {
 
 
