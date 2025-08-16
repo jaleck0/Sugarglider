@@ -3,11 +3,25 @@ _runtimeStart_ &h7FFF
 _arraysStart_ &h7FFF
 _codeRomType_ ROMvX0
 
-def x, y, button, sp, dx, dy, ang
+'size of your most complex expression, (temporary variables required)*2, defaults to 8
+_tempVarSize_ 4
+
+'free string work area, (better not use any of the string runtime!)
+free STRINGWORKAREA
+
+'defines the amount of contiguous RAM needed for blit stripes, (in this case 15*6 + 1), also min address and search direction
+_blitStripeChunks_ 15, &h3BA0, &h7FFF, descending
+
+def x, y, button, sp, dx, dy, ang, score, hiscore 
 
 const lutsize = 64
 const maxspd = 1024
 const grav = 10
+
+const sw = 16
+const sh = 14
+
+
 
 
 dim sinlut(lutsize - 1) = { 
@@ -31,13 +45,13 @@ const glider_dw = 2
 load blit, ../img/gliderdown.tga, glider_dw + 0, NoFlip
 
 const glider_lup = 3
-load blit, ../img/gliderup.tga, glider_lup + 0, NoFlip
+load blit, ../img/gliderupl.tga, glider_lup + 0, NoFlip
 
 const glider_lnt = 4
-load blit, ../img/gliderside.tga, glider_lnt + 0, NoFlip
+load blit, ../img/glidersidel.tga, glider_lnt + 0, NoFlip
 
 const glider_ldw = 5
-load blit, ../img/gliderdown.tga, glider_ldw + 0, NoFlip
+load blit, ../img/gliderdownl.tga, glider_ldw + 0, NoFlip
 
 const logo = 6
 load blit, ../img/logo.tga, logo + 0, NoFlip
@@ -55,13 +69,15 @@ init:
     call initVars
 
 loop:
+	
+
     call waitScanline
     button = get("BUTTON_STATE") 
 	
 	'dx = (9*dx) / 10
 	'dy = (9*dy) / 10
 	
-	sp = (1*sp) / 10
+	sp = sp / 2
 	
 	if button == &hfe then ang = ang + 512		'right
 	if button == &hfd then ang = ang - 512		'left
@@ -78,12 +94,12 @@ loop:
 	call calcdxdy
 	
 	
-	at 0,0	
-	PRINT ang.hi
-	at 0,8	
-	PRINT dx
-	at 0,16	
-	PRINT dy
+	'at 0,0	
+	'PRINT ang.hi
+	'at 0,8	
+	'PRINT dx
+	'at 0,16	
+	'PRINT dy
 	
 	x = x + dx
 	y = y + dy 
@@ -94,8 +110,10 @@ loop:
 	if y.hi > 105 then y.hi = 105 : dy = -dy
 	if y.hi <= 4 then y.hi = 5
 	
+	call aniplayer
 	
-	blit NoFlip, glider_up, x.hi, y.hi
+	
+	
 
 goto loop
 
@@ -134,32 +152,52 @@ proc waitScanline
     until (get("VIDEO_Y") AND 1)
 endproc
 
+proc aniplayer
+	local gspr
+	gspr = 0
+
+	if dy > 128
+		gspr = glider_dw
+	elseif dy < -128
+		gspr = glider_up
+	else
+		gspr = glider_nt
+	endif
+	
+	if dx < 0 
+		gspr = gspr + glider_lup
+	endif
+	
+	blit NoFlip, gspr, x.hi, y.hi
+endproc
+
 proc calcdxdy 
 	'need to improve the speed by reducing the max determination time
-	local angindex
+	local angindex, angpoint
 	
 	angindex = ang.hi%64
+	angpoint = (ang.hi AND 192)
 	
 	'angle between 0 and 63 meaning 0 and 90 deg
 	dx = sp * sinlut(lutsize - 1 - angindex) 
 	dy = sp * sinlut(angindex)
 	
 	'angle between 192 and 255 meaning 270 and 360 deg
-	if (ang.hi > 191)
+	if (angpoint == 192)
 		dx = sp * sinlut(angindex)
 		dy = sp * -sinlut(lutsize - 1 - angindex)
 		return
 	endif
 	
 	'angle between 128 and 191 meaning 180 and 270 deg
-	if (ang.hi > 127)
+	if (angpoint == 128)
 		dx = sp * -sinlut(lutsize - 1 - angindex)
 		dy = sp * -sinlut(angindex)
 		return
 	endif
 	
 	'angle between 64 and 127 meaning 90 and 180 deg
-	if (ang.hi > 63)
+	if (angpoint == 64)
 		dx = sp * -sinlut(angindex)
 		dy = sp * sinlut(lutsize - 1 - angindex)
 		return

@@ -54,28 +54,33 @@ _reset                            EQU                          0x0227
 _start                            EQU                          0x022a
 _init                             EQU                          0x022d
 _loop                             EQU                          0x0230
-_if_0x0000                        EQU                          0x0250
-_if_0x0001                        EQU                          0x025e
-_if_0x0002                        EQU                          0x026f
-_if_0x0003                        EQU                          0x0280
-_if_0x0004                        EQU                          0x0289
-_if_0x0005                        EQU                          0x0293
-_if_0x0006                        EQU                          0x02a5
-_if_0x0007                        EQU                          0x02b7
-_if_0x0008                        EQU                          0x0309
-_if_0x0009                        EQU                          0x0312
-_if_0x000a                        EQU                          0x031e
-_if_0x000b                        EQU                          0x0327
-_initSystem                       EQU                          0x0337
-_resetLevel                       EQU                          0x0345
-_startLevel                       EQU                          0x034b
-_initVars                         EQU                          0x0351
-_waitScanline                     EQU                          0x0384
-_repeat_0x000c                    EQU                          0x0385
-_calcdxdy                         EQU                          0x038e
-_endif_0x000d                     EQU                          0x03f2
-_endif_0x000e                     EQU                          0x0431
-_endif_0x000f                     EQU                          0x0461
+_if_0x0000                        EQU                          0x0248
+_if_0x0001                        EQU                          0x0256
+_if_0x0002                        EQU                          0x0267
+_if_0x0003                        EQU                          0x0278
+_if_0x0004                        EQU                          0x0281
+_if_0x0005                        EQU                          0x028b
+_if_0x0006                        EQU                          0x029d
+_if_0x0007                        EQU                          0x02af
+_if_0x0008                        EQU                          0x02c3
+_if_0x0009                        EQU                          0x02cc
+_if_0x000a                        EQU                          0x02d8
+_if_0x000b                        EQU                          0x02e1
+_initSystem                       EQU                          0x02e7
+_resetLevel                       EQU                          0x02f5
+_startLevel                       EQU                          0x0305
+_initVars                         EQU                          0x030b
+_waitScanline                     EQU                          0x033e
+_repeat_0x000c                    EQU                          0x033f
+_aniplayer                        EQU                          0x0348
+_elseif_0x000d                    EQU                          0x0359
+_else_0x000e                      EQU                          0x0366
+_endif_0x000f                     EQU                          0x0369
+_endif_0x0010                     EQU                          0x0372
+_calcdxdy                         EQU                          0x0381
+_endif_0x0011                     EQU                          0x03eb
+_endif_0x0012                     EQU                          0x042a
+_endif_0x0013                     EQU                          0x045a
 _page_0x0300                      EQU                          0x0300
 _page_0x0400                      EQU                          0x0400
 
@@ -83,6 +88,8 @@ _page_0x0400                      EQU                          0x0400
 _lutsize                          EQU                          0x0040
 _maxspd                           EQU                          0x0400
 _grav                             EQU                          0x000a
+_sw                               EQU                          0x0010
+_sh                               EQU                          0x000e
 _glider_up                        EQU                          0x0000
 _glider_nt                        EQU                          0x0001
 _glider_dw                        EQU                          0x0002
@@ -99,9 +106,13 @@ _sp                               EQU                          0x0036
 _dx                               EQU                          0x0038
 _dy                               EQU                          0x003a
 _ang                              EQU                          0x003c
+_score                            EQU                          0x003e
+_hiscore                          EQU                          0x0040
 
 ; Local Variables
+_aniplayer_gspr                   EQU                          0x00c4
 _calcdxdy_angindex                EQU                          0x00c4
+_calcdxdy_angpoint                EQU                          0x00c6
 
 ; Arrays
 _sinlut                           EQU                          0x0680
@@ -110,8 +121,8 @@ _sinlut                           DW                           0x0000 0x0005 0x0
 ; Strings
 
 ; Constant Strings
-_str_0x74a5                       EQU                          0x74a5
-_str_0x74a5                       DB                           16 'PRESS A TO START' 0
+_str_0x6da5                       EQU                          0x6da5
+_str_0x6da5                       DB                           16 'PRESS A TO START' 0
 
 ; Data
 
@@ -128,52 +139,70 @@ _str_0x74a5                       DB                           16 'PRESS A TO ST
 ; Define Midis
 
 ; Define Blits
+def_blits_0x7fab                  EQU                          0x7fab
+def_blits_0x7fab                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 0 63 0 0 63 0 0 63 0 0 0 63 0 0 0 0 0 0 63 63 0 0 0 63 0 0 0 0 0 63 0 63 0 0 0 0 63 63 242 
+def_blits_0x7eab                  EQU                          0x7eab
+def_blits_0x7eab                  DB                           0 0 63 63 0 0 0 0 63 63 63 63 0 0 63 0 0 0 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 0 63 63 63 63 63 63 0 63 0 0 0 0 63 0 63 0 0 0 63 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 63 63 63 0 0 63 63 0 0 0 242 
 def_blits_0x7dab                  EQU                          0x7dab
-def_blits_0x7dab                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 0 63 0 0 63 0 0 63 0 0 0 63 0 0 0 0 0 0 63 63 0 0 0 63 0 0 0 0 0 63 0 63 0 0 0 0 63 63 242 
+def_blits_0x7dab                  DB                           63 63 0 0 0 0 63 63 0 0 0 0 0 0 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 63 0 63 0 0 0 63 63 63 63 63 0 0 63 63 0 63 0 0 0 63 63 0 0 0 63 0 0 0 0 63 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 242 
 def_blits_0x7cab                  EQU                          0x7cab
-def_blits_0x7cab                  DB                           0 0 63 63 0 0 0 0 63 63 63 63 0 0 63 0 0 0 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 0 63 63 63 63 63 63 0 63 0 0 0 0 63 0 63 0 0 0 63 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 63 63 63 0 0 63 63 0 0 0 242 
+def_blits_0x7cab                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 0 63 0 0 63 0 0 63 0 0 0 63 63 63 0 0 63 0 0 0 0 63 0 0 63 0 0 63 0 63 63 63 0 0 63 0 0 0 0 0 0 0 0 0 242 
 def_blits_0x7bab                  EQU                          0x7bab
-def_blits_0x7bab                  DB                           63 63 0 0 0 0 63 63 0 0 0 0 0 0 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 63 0 63 0 0 0 63 63 63 63 63 0 0 63 63 0 63 0 0 0 63 63 0 0 0 63 0 0 0 0 63 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 242 
+def_blits_0x7bab                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 0 0 63 63 63 63 0 63 0 0 0 63 0 0 0 0 0 63 0 0 0 63 0 0 63 0 0 0 63 63 0 63 63 63 0 63 63 0 0 63 63 63 0 0 0 0 0 0 0 242 
 def_blits_0x7aab                  EQU                          0x7aab
-def_blits_0x7aab                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 0 63 0 0 63 0 0 63 0 0 0 63 63 63 0 0 63 0 0 0 0 63 0 0 63 0 0 63 0 63 63 63 0 0 63 0 0 0 0 0 0 0 0 0 242 
-def_blits_0x79ab                  EQU                          0x79ab
-def_blits_0x79ab                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 0 0 63 63 63 63 0 63 0 0 0 63 0 0 0 0 0 63 0 0 0 63 0 0 63 0 0 0 63 63 0 63 63 63 0 63 63 0 0 63 63 63 0 0 0 0 0 0 0 242 
-def_blits_0x78ab                  EQU                          0x78ab
-def_blits_0x78ab                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 63 63 63 63 0 0 0 0 0 0 63 0 0 63 0 63 63 0 0 63 0 63 63 0 0 0 63 0 63 0 63 63 63 63 63 0 0 63 63 63 0 0 63 63 0 63 0 0 0 63 63 63 0 0 0 0 0 0 0 0 242 
+def_blits_0x7aab                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 63 63 63 63 0 0 0 0 0 0 63 0 0 63 0 63 63 0 0 63 0 63 63 0 0 0 63 0 63 0 63 63 63 63 63 0 0 63 63 63 0 0 63 63 0 63 0 0 0 63 63 63 0 0 0 0 0 0 0 0 242 
+def_blits_0x79a5                  EQU                          0x79a5
+def_blits_0x79a5                  DB                           0 0 0 0 0 0 0 0 63 63 0 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 0 63 0 0 63 0 0 63 0 0 63 63 0 63 0 63 0 63 63 63 0 63 0 0 0 0 0 0 63 0 0 0 0 0 0 63 63 0 0 0 0 0 0 63 0 0 0 0 0 0 0 0 0 0 0 0 241 
+def_blits_0x78a5                  EQU                          0x78a5
+def_blits_0x78a5                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 63 0 0 63 63 63 0 63 63 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 63 63 0 0 0 0 0 0 63 63 63 0 0 0 63 63 0 63 63 63 0 63 0 0 0 63 63 63 241 
 def_blits_0x77a5                  EQU                          0x77a5
-def_blits_0x77a5                  DB                           0 0 0 0 0 0 0 0 63 63 0 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 0 63 0 0 63 0 0 63 0 0 63 63 0 63 0 63 0 63 63 63 0 63 0 0 0 0 0 0 63 0 0 0 0 0 0 63 63 0 0 0 0 0 0 63 0 0 0 0 0 0 0 0 0 0 0 0 241 
-def_blits_0x76a5                  EQU                          0x76a5
-def_blits_0x76a5                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 63 0 0 63 63 63 0 63 63 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 63 63 0 0 0 0 0 0 63 63 63 0 0 0 63 63 0 63 63 63 0 63 0 0 0 63 63 63 241 
-def_blits_0x75a5                  EQU                          0x75a5
-def_blits_0x75a5                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 63 63 63 0 0 0 0 0 0 63 0 0 0 0 0 63 0 0 63 0 63 63 0 0 63 0 63 63 0 0 63 63 63 63 0 0 0 0 63 63 63 0 0 0 63 0 63 0 0 0 63 63 63 0 241 
-def_blits_0x74b7                  EQU                          0x74b7
-def_blits_0x74b7                  DB                           0 0 0 0 0 63 0 0 0 0 63 63 0 0 0 63 63 63 0 0 0 63 63 63 0 0 0 63 63 63 0 0 0 0 63 63 0 0 0 0 0 63 0 0 0 0 0 0 0 0 0 63 63 0 0 0 0 63 63 63 0 0 0 63 63 63 0 0 0 0 63 63 244 
-def_blits_0x73b7                  EQU                          0x73b7
-def_blits_0x73b7                  DB                           63 63 63 63 63 0 63 63 63 63 63 63 63 0 0 63 63 63 0 0 0 0 63 63 63 0 0 0 0 0 63 63 63 63 0 0 63 63 63 63 63 63 0 0 63 63 63 63 0 0 0 63 63 63 0 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 0 244 
-def_blits_0x72b7                  EQU                          0x72b7
-def_blits_0x72b7                  DB                           0 0 0 0 0 0 0 63 63 0 0 0 63 63 63 0 0 0 63 63 63 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 63 0 0 0 63 63 63 63 63 63 63 63 63 63 63 63 244 
-def_blits_0x71b7                  EQU                          0x71b7
-def_blits_0x71b7                  DB                           0 0 0 0 0 0 0 63 63 0 63 63 0 63 63 63 63 63 0 63 63 63 63 0 0 63 63 63 0 0 0 63 63 63 63 0 63 63 63 63 63 63 63 63 0 63 63 63 63 63 0 0 0 0 63 63 63 63 0 63 63 0 63 63 63 63 63 0 63 63 63 63 244 
-def_blits_0x70b7                  EQU                          0x70b7
-def_blits_0x70b7                  DB                           0 0 0 0 0 0 63 63 63 63 0 0 63 63 63 63 63 63 0 0 63 63 63 63 0 0 63 63 63 63 0 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 63 63 63 63 63 63 63 63 0 63 63 63 63 63 0 63 63 63 0 0 0 0 63 244 
-def_blits_0x6fb7                  EQU                          0x6fb7
-def_blits_0x6fb7                  DB                           0 0 0 0 0 0 63 63 63 63 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 0 63 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 63 63 63 63 0 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 63 63 244 
-def_blits_0x6eb7                  EQU                          0x6eb7
-def_blits_0x6eb7                  DB                           0 0 0 0 0 0 63 63 63 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 63 63 63 63 0 0 0 63 63 63 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 244 
+def_blits_0x77a5                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 63 63 63 0 0 0 0 0 0 63 0 0 0 0 0 63 0 0 63 0 63 63 0 0 63 0 63 63 0 0 63 63 63 63 0 0 0 0 63 63 63 0 0 0 63 0 63 0 0 0 63 63 63 0 241 
+def_blits_0x76ab                  EQU                          0x76ab
+def_blits_0x76ab                  DB                           0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 63 0 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 0 63 0 63 63 63 63 63 0 63 0 63 63 0 0 0 63 63 0 0 0 0 0 0 63 0 0 0 0 0 0 63 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 242 
+def_blits_0x75ab                  EQU                          0x75ab
+def_blits_0x75ab                  DB                           0 0 63 63 0 0 63 63 63 63 0 0 0 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 0 0 0 63 0 0 63 63 63 63 63 63 0 0 0 0 63 0 0 0 0 63 0 63 0 0 0 0 0 63 0 0 0 0 0 0 63 0 0 0 0 0 0 63 63 63 0 63 0 0 0 63 63 0 242 
+def_blits_0x74ab                  EQU                          0x74ab
+def_blits_0x74ab                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 63 0 0 63 0 0 63 0 0 63 0 63 0 0 0 63 0 63 0 0 63 0 0 0 0 63 0 0 0 63 63 0 0 0 0 0 0 63 0 0 0 63 0 63 0 0 0 63 63 0 0 0 0 242 
+def_blits_0x73ab                  EQU                          0x73ab
+def_blits_0x73ab                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 0 63 63 63 63 0 63 0 0 0 0 0 63 63 0 63 0 0 63 63 0 63 0 0 63 0 63 0 0 0 63 63 63 63 63 0 0 63 63 63 0 0 0 63 0 63 63 0 0 63 63 63 0 0 0 0 0 0 0 242 
+def_blits_0x72ab                  EQU                          0x72ab
+def_blits_0x72ab                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 0 63 0 0 0 0 0 63 63 63 63 0 0 63 0 0 0 63 0 63 0 0 0 0 63 0 0 63 0 0 0 63 63 0 0 0 63 63 0 63 63 63 0 63 63 63 0 0 0 0 0 0 0 0 242 
+def_blits_0x71ab                  EQU                          0x71ab
+def_blits_0x71ab                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 63 0 0 0 63 0 63 0 0 63 0 0 63 63 63 0 0 0 0 0 0 63 0 0 0 63 0 0 63 0 63 63 63 0 63 0 0 0 0 63 0 0 0 0 0 0 0 0 242 
+def_blits_0x70a5                  EQU                          0x70a5
+def_blits_0x70a5                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 0 63 63 63 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 63 0 63 0 0 63 63 0 63 0 0 63 63 63 63 0 63 63 63 0 0 0 63 0 63 0 0 0 63 63 63 0 0 241 
+def_blits_0x6fa5                  EQU                          0x6fa5
+def_blits_0x6fa5                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 63 63 0 0 0 63 63 63 0 0 63 0 0 63 63 63 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 63 0 0 63 63 0 0 0 0 63 63 0 0 0 63 63 0 63 63 63 0 63 63 63 0 0 0 241 
+def_blits_0x6ea5                  EQU                          0x6ea5
+def_blits_0x6ea5                  DB                           0 0 0 0 0 0 0 0 63 63 0 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 0 63 0 63 0 0 0 63 0 63 0 0 63 0 0 63 0 63 63 0 0 63 63 63 0 63 0 0 0 0 0 63 0 0 0 0 63 0 0 0 63 63 0 0 0 63 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 241 
 def_blits_0x6db7                  EQU                          0x6db7
-def_blits_0x6db7                  DB                           0 0 0 0 0 0 63 63 63 0 63 63 63 63 63 63 63 63 0 0 63 63 63 0 0 0 63 63 0 0 0 0 63 63 63 0 0 0 63 63 63 63 0 0 0 63 63 63 0 0 0 0 0 0 0 0 63 63 0 0 0 0 63 63 63 63 0 0 0 63 63 63 244 
+def_blits_0x6db7                  DB                           0 0 0 0 0 63 0 0 0 0 63 63 0 0 0 63 63 63 0 0 0 63 63 63 0 0 0 63 63 63 0 0 0 0 63 63 0 0 0 0 0 63 0 0 0 0 0 0 0 0 0 63 63 0 0 0 0 63 63 63 0 0 0 63 63 63 0 0 0 0 63 63 244 
 def_blits_0x6cb7                  EQU                          0x6cb7
-def_blits_0x6cb7                  DB                           0 0 0 0 0 0 63 63 0 63 0 63 63 63 63 63 0 63 0 0 63 63 0 63 0 0 63 63 63 63 0 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 63 63 63 63 63 63 63 63 0 63 63 63 63 63 0 63 63 63 63 0 0 0 63 244 
+def_blits_0x6cb7                  DB                           63 63 63 63 63 0 63 63 63 63 63 63 63 0 0 63 63 63 0 0 0 0 63 63 63 0 0 0 0 0 63 63 63 63 0 0 63 63 63 63 63 63 0 0 63 63 63 63 0 0 0 63 63 63 0 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 0 244 
 def_blits_0x6bb7                  EQU                          0x6bb7
-def_blits_0x6bb7                  DB                           0 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 63 63 63 63 63 0 63 63 63 63 63 0 244 
+def_blits_0x6bb7                  DB                           0 0 0 0 0 0 0 63 63 0 0 0 63 63 63 0 0 0 63 63 63 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 63 0 0 0 63 63 63 63 63 63 63 63 63 63 63 63 244 
 def_blits_0x6ab7                  EQU                          0x6ab7
-def_blits_0x6ab7                  DB                           63 63 0 0 0 0 63 63 0 0 0 0 0 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 63 63 63 63 0 63 63 63 63 63 63 63 63 0 0 63 63 63 0 0 0 63 63 63 63 0 0 63 63 63 63 63 63 63 63 0 63 63 63 244 
+def_blits_0x6ab7                  DB                           0 0 0 0 0 0 0 63 63 0 63 63 0 63 63 63 63 63 0 63 63 63 63 0 0 63 63 63 0 0 0 63 63 63 63 0 63 63 63 63 63 63 63 63 0 63 63 63 63 63 0 0 0 0 63 63 63 63 0 63 63 0 63 63 63 63 63 0 63 63 63 63 244 
 def_blits_0x69b7                  EQU                          0x69b7
-def_blits_0x69b7                  DB                           0 63 63 0 0 0 0 63 63 0 0 0 63 63 63 0 63 63 63 63 63 63 63 63 63 63 63 63 63 0 63 63 63 63 0 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 0 63 63 63 63 63 0 63 63 0 63 63 63 63 0 0 0 63 63 244 
+def_blits_0x69b7                  DB                           0 0 0 0 0 0 63 63 63 63 0 0 63 63 63 63 63 63 0 0 63 63 63 63 0 0 63 63 63 63 0 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 63 63 63 63 63 63 63 63 0 63 63 63 63 63 0 63 63 63 0 0 0 0 63 244 
 def_blits_0x68b7                  EQU                          0x68b7
-def_blits_0x68b7                  DB                           0 0 0 0 0 0 0 0 63 63 63 0 63 0 63 63 63 63 63 63 63 0 63 63 63 63 63 0 63 63 0 63 63 63 0 63 63 63 63 63 0 63 63 63 63 0 0 63 0 0 0 0 0 63 0 0 63 63 0 63 63 63 63 63 0 63 63 63 63 0 0 63 244 
+def_blits_0x68b7                  DB                           0 0 0 0 0 0 63 63 63 63 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 0 63 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 63 63 63 63 0 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 63 63 244 
 def_blits_0x67b7                  EQU                          0x67b7
-def_blits_0x67b7                  DB                           0 0 0 0 0 0 63 63 63 63 0 0 63 63 63 63 0 0 63 63 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 244 
+def_blits_0x67b7                  DB                           0 0 0 0 0 0 63 63 63 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 63 63 63 63 0 0 0 63 63 63 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 244 
+def_blits_0x66b7                  EQU                          0x66b7
+def_blits_0x66b7                  DB                           0 0 0 0 0 0 63 63 63 0 63 63 63 63 63 63 63 63 0 0 63 63 63 0 0 0 63 63 0 0 0 0 63 63 63 0 0 0 63 63 63 63 0 0 0 63 63 63 0 0 0 0 0 0 0 0 63 63 0 0 0 0 63 63 63 63 0 0 0 63 63 63 244 
+def_blits_0x65b7                  EQU                          0x65b7
+def_blits_0x65b7                  DB                           0 0 0 0 0 0 63 63 0 63 0 63 63 63 63 63 0 63 0 0 63 63 0 63 0 0 63 63 63 63 0 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 63 63 63 63 63 63 63 63 0 63 63 63 63 63 0 63 63 63 63 0 0 0 63 244 
+def_blits_0x64b7                  EQU                          0x64b7
+def_blits_0x64b7                  DB                           0 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 63 63 0 0 0 0 63 63 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 63 63 63 63 63 0 63 63 63 63 63 0 244 
+def_blits_0x63b7                  EQU                          0x63b7
+def_blits_0x63b7                  DB                           63 63 0 0 0 0 63 63 0 0 0 0 0 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 63 63 63 63 0 63 63 63 63 63 63 63 63 0 0 63 63 63 0 0 0 63 63 63 63 0 0 63 63 63 63 63 63 63 63 0 63 63 63 244 
+def_blits_0x62b7                  EQU                          0x62b7
+def_blits_0x62b7                  DB                           0 63 63 0 0 0 0 63 63 0 0 0 63 63 63 0 63 63 63 63 63 63 63 63 63 63 63 63 63 0 63 63 63 63 0 0 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 63 0 0 63 63 63 63 63 0 63 63 0 63 63 63 63 0 0 0 63 63 244 
+def_blits_0x61b7                  EQU                          0x61b7
+def_blits_0x61b7                  DB                           0 0 0 0 0 0 0 0 63 63 63 0 63 0 63 63 63 63 63 63 63 0 63 63 63 63 63 0 63 63 0 63 63 63 0 63 63 63 63 63 0 63 63 63 63 0 0 63 0 0 0 0 0 63 0 0 63 63 0 63 63 63 63 63 0 63 63 63 63 0 0 63 244 
+def_blits_0x60b7                  EQU                          0x60b7
+def_blits_0x60b7                  DB                           0 0 0 0 0 0 63 63 63 63 0 0 63 63 63 63 0 0 63 63 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 63 0 0 0 0 0 244 
 
 ; Define Fonts
 
@@ -182,22 +211,22 @@ def_blits_0x67b7                  DB                           0 0 0 0 0 0 63 63
 ; Define Patterns
 
 ; Lookup Tables
-_blitLut_0x73a9                   EQU                          0x73a9
-_blitLut_0x73a9                   DW                           0x7dab 0x0000 0x7cab 0x0006 0x7bab 0x000c 0x0000
-_blitLut_0x72a9                   EQU                          0x72a9
-_blitLut_0x72a9                   DW                           0x7aab 0x0000 0x79ab 0x0006 0x78ab 0x000c 0x0000
-_blitLut_0x71a9                   EQU                          0x71a9
-_blitLut_0x71a9                   DW                           0x77a5 0x0000 0x76a5 0x0006 0x75a5 0x000c 0x0000
-_blitLut_0x70a9                   EQU                          0x70a9
-_blitLut_0x70a9                   DW                           0x7dab 0x0000 0x7cab 0x0006 0x7bab 0x000c 0x0000
-_blitLut_0x6fa9                   EQU                          0x6fa9
-_blitLut_0x6fa9                   DW                           0x7aab 0x0000 0x79ab 0x0006 0x78ab 0x000c 0x0000
-_blitLut_0x6ea9                   EQU                          0x6ea9
-_blitLut_0x6ea9                   DW                           0x77a5 0x0000 0x76a5 0x0006 0x75a5 0x000c 0x0000
-_blitLut_0x66c6                   EQU                          0x66c6
-_blitLut_0x66c6                   DW                           0x74b7 0x0000 0x73b7 0x0006 0x72b7 0x000c 0x71b7 0x0012 0x70b7 0x0018 0x6fb7 0x001e 0x6eb7 0x0024 0x6db7 0x002a 0x6cb7 0x0030 0x6bb7 0x0036 0x6ab7 0x003c 0x69b7 0x0042 0x68b7 0x0048 0x67b7 0x004e 0x0000
-_blitsLut_                        EQU                          0x6da9
-_blitsLut_                        DW                           0x73a9 0x72a9 0x71a9 0x70a9 0x6fa9 0x6ea9 0x66c6 
+_blitLut_0x6ca9                   EQU                          0x6ca9
+_blitLut_0x6ca9                   DW                           0x7fab 0x0000 0x7eab 0x0006 0x7dab 0x000c 0x0000
+_blitLut_0x6ba9                   EQU                          0x6ba9
+_blitLut_0x6ba9                   DW                           0x7cab 0x0000 0x7bab 0x0006 0x7aab 0x000c 0x0000
+_blitLut_0x6aa9                   EQU                          0x6aa9
+_blitLut_0x6aa9                   DW                           0x79a5 0x0000 0x78a5 0x0006 0x77a5 0x000c 0x0000
+_blitLut_0x69a9                   EQU                          0x69a9
+_blitLut_0x69a9                   DW                           0x76ab 0x0000 0x75ab 0x0006 0x74ab 0x000c 0x0000
+_blitLut_0x68a9                   EQU                          0x68a9
+_blitLut_0x68a9                   DW                           0x73ab 0x0000 0x72ab 0x0006 0x71ab 0x000c 0x0000
+_blitLut_0x67a9                   EQU                          0x67a9
+_blitLut_0x67a9                   DW                           0x70a5 0x0000 0x6fa5 0x0006 0x6ea5 0x000c 0x0000
+_blitLut_0x5fc6                   EQU                          0x5fc6
+_blitLut_0x5fc6                   DW                           0x6db7 0x0000 0x6cb7 0x0006 0x6bb7 0x000c 0x6ab7 0x0012 0x69b7 0x0018 0x68b7 0x001e 0x67b7 0x0024 0x66b7 0x002a 0x65b7 0x0030 0x64b7 0x0036 0x63b7 0x003c 0x62b7 0x0042 0x61b7 0x0048 0x60b7 0x004e 0x0000
+_blitsLut_                        EQU                          0x66a9
+_blitsLut_                        DW                           0x6ca9 0x6ba9 0x6aa9 0x69a9 0x68a9 0x67a9 0x5fc6 
 
 ; Lazy Constants
 
@@ -220,10 +249,7 @@ _loop                             CALLI                        _waitScanline    
                                   LD                           giga_buttonState
                                   STW                          _button                      ; button = get("BUTTON_STATE")
 
-                                  MOVWA                        _sp, giga_sysArg0
-                                  MOVQW                        giga_sysArg2, 10
-                                  CALLI                        divide16bit
-                                  STW                          _sp                          ; sp = (1*sp) / 10
+                                  LSRV                         _sp                          ; sp = sp / 2
 
                                   CMPI                         _button, 254
                                   JNE                          _if_0x0000
@@ -278,36 +304,11 @@ _if_0x0006                        CMPI                         _button, 249
 
 _if_0x0007                        CALLI                        _calcdxdy                    ; call calcdxdy
 
-                                  MOVQB                        cursorXY, 0
-                                  MOVQB                        cursorXY + 1, 0
-                                  AtTextCursor                                              ; at 0,0
-
-                                  LD                           _ang + 1
-                                  PrintAcInt16                 
-                                  NewLine                                                   ; PRINT ang.hi
-
-                                  MOVQB                        cursorXY, 0
-                                  MOVQB                        cursorXY + 1, 8
-                                  AtTextCursor                                              ; at 0,8
-
-                                  LDW                          _dx
-                                  PrintAcInt16                 
-                                  NewLine                                                   ; PRINT dx
-
-                                  MOVQB                        cursorXY, 0
-                                  MOVQB                        cursorXY + 1, 16
-                                  AtTextCursor                                              ; at 0,16
-
-                                  LDW                          _dy
-                                  PrintAcInt16                 
-                                  NewLine                                                   ; PRINT dy
-
                                   ADDVW                        _x, _dx, _x                  ; x = x + dx
 
                                   ADDVW                        _y, _dy, _y                  ; y = y + dy
 
-                                  CALLI                        _page_0x0300
-_page_0x0300                      CMPI                         _x + 1, 142
+                                  CMPI                         _x + 1, 142
                                   JLE                          _if_0x0008
                                   MOVQB                        _x + 1, 1                    ; if x.hi > 142 then x.hi = 1
 
@@ -324,10 +325,7 @@ _if_0x000a                        CMPI                         _y + 1, 4
                                   JGT                          _if_0x000b
                                   MOVQB                        _y + 1, 5                    ; if y.hi <= 4 then y.hi = 5
 
-_if_0x000b                        MOVQW                        blitId, 0
-                                  MOVB                         _x + 1, blitXY
-                                  ADDBI                        _y + 1, blitXY + 1, 8
-                                  DrawBlit                                                  ; blit NoFlip, glider_up, x.hi, y.hi
+_if_0x000b                        CALLI                        _aniplayer                   ; call aniplayer
 
                                   CALLI                        _loop                        ; goto loop
 
@@ -343,7 +341,8 @@ _initSystem                       PUSH                                          
 
 _resetLevel                       PUSH                                                      ; proc resetLevel
 
-                                  ClearVertBlinds                                           ; cls
+                                  CALLI                        _page_0x0300
+_page_0x0300                      ClearVertBlinds                                           ; cls
 
                                   Return                                                    ; endproc
 
@@ -376,7 +375,7 @@ _initVars                         PUSH                                          
                                   MOVQB                        cursorXY + 1, 90
                                   AtTextCursor                                              ; at 32,90
 
-                                  PrintString                  _str_0x74a5
+                                  PrintString                  _str_0x6da5
                                   NewLine                                                   ; PRINT "PRESS A TO START"
 
                                   Return                                                    ; endproc
@@ -388,6 +387,39 @@ _repeat_0x000c                    ANDBK                        giga_videoY, 0x01
 
                                   Return                                                    ; endproc
 
+_aniplayer                        PUSH                                                      ; proc aniplayer
+
+                                  MOVQW                        _aniplayer_gspr, 0           ; gspr = 0
+
+                                  LDW                          _dy
+                                  SUBI                         128
+                                  JLE                          _elseif_0x000d               ; if dy > 128
+
+                                  MOVQW                        _aniplayer_gspr, 2           ; gspr = glider_dw
+
+                                  CALLI                        _endif_0x000f
+_elseif_0x000d                    LDNI                         128
+                                  SUBW                         _dy
+                                  JLE                          _else_0x000e                 ; elseif dy < -128
+
+                                  MOVQW                        _aniplayer_gspr, 0           ; gspr = glider_up
+
+                                  CALLI                        _endif_0x000f                ; else
+
+_else_0x000e                      MOVQW                        _aniplayer_gspr, 1           ; gspr = glider_nt
+
+_endif_0x000f                     LDW                          _dx
+                                  JGE                          _endif_0x0010                ; if dx < 0
+
+                                  ADDVI                        _aniplayer_gspr, _aniplayer_gspr, 3                                                                                      ; gspr = gspr + glider_lup
+
+_endif_0x0010                     MOVWA                        _aniplayer_gspr, blitId
+                                  MOVB                         _x + 1, blitXY
+                                  ADDBI                        _y + 1, blitXY + 1, 8
+                                  DrawBlit                                                  ; blit NoFlip, gspr, x.hi, y.hi
+
+                                  Return                                                    ; endproc
+
 _calcdxdy                         PUSH                                                      ; proc calcdxdy
 
                                   LD                           _ang + 1
@@ -395,6 +427,9 @@ _calcdxdy                         PUSH                                          
                                   MOVQW                        giga_sysArg2, 64
                                   CALLI                        divide16bit
                                   MOVWA                        giga_sysArg4, _calcdxdy_angindex                                                                                         ; angindex = ang.hi%64
+
+                                  ANDBK                        _ang + 1, 0xc0
+                                  STW                          _calcdxdy_angpoint           ; angpoint = (ang.hi AND 192)
 
                                   LDI                          63
                                   SUBW                         _calcdxdy_angindex
@@ -412,8 +447,8 @@ _calcdxdy                         PUSH                                          
                                   CALLI                        multiply16bit
                                   STW                          _dy                          ; dy = sp * sinlut(angindex)
 
-                                  CMPI                         _ang + 1, 191
-                                  JLE                          _endif_0x000d                ; if (ang.hi > 191)
+                                  CMPI                         _calcdxdy_angpoint, 192
+                                  JNE                          _endif_0x0011                ; if (angpoint == 192)
 
                                   LDARRW                       _calcdxdy_angindex, 0x0680
                                   STW                          0xe8
@@ -427,26 +462,26 @@ _calcdxdy                         PUSH                                          
                                   ARRW                         0x0680
                                   DEEK                         
                                   NEGW                         giga_vAC
-                                  STW                          0xec
+                                  STW                          0xe8
                                   MOVWA                        _sp, giga_sysArg0
-                                  MOVWA                        0xec, giga_sysArg2
+                                  MOVWA                        0xe8, giga_sysArg2
                                   CALLI                        multiply16bit
                                   STW                          _dy                          ; dy = sp * -sinlut(lutsize - 1 - angindex)
 
                                   Return                                                    ; return
 
-_endif_0x000d                     CMPI                         _ang + 1, 127
-                                  CALLI                        _page_0x0400
-_page_0x0400                      JLE                          _endif_0x000e                ; if (ang.hi > 127)
+_endif_0x0011                     CMPI                         _calcdxdy_angpoint, 128
+                                  JNE                          _endif_0x0012                ; if (angpoint == 128)
 
                                   LDI                          63
                                   SUBW                         _calcdxdy_angindex
-                                  ARRW                         0x0680
+                                  CALLI                        _page_0x0400
+_page_0x0400                      ARRW                         0x0680
                                   DEEK                         
                                   NEGW                         giga_vAC
-                                  STW                          0xec
+                                  STW                          0xe8
                                   MOVWA                        _sp, giga_sysArg0
-                                  MOVWA                        0xec, giga_sysArg2
+                                  MOVWA                        0xe8, giga_sysArg2
                                   CALLI                        multiply16bit
                                   STW                          _dx                          ; dx = sp * -sinlut(lutsize - 1 - angindex)
 
@@ -460,8 +495,8 @@ _page_0x0400                      JLE                          _endif_0x000e    
 
                                   Return                                                    ; return
 
-_endif_0x000e                     CMPI                         _ang + 1, 63
-                                  JLE                          _endif_0x000f                ; if (ang.hi > 63)
+_endif_0x0012                     CMPI                         _calcdxdy_angpoint, 64
+                                  JNE                          _endif_0x0013                ; if (angpoint == 64)
 
                                   LDARRW                       _calcdxdy_angindex, 0x0680
                                   NEGW                         giga_vAC
@@ -482,7 +517,7 @@ _endif_0x000e                     CMPI                         _ang + 1, 63
 
                                   Return                                                    ; return
 
-_endif_0x000f                     Return                                                    ; endproc
+_endif_0x0013                     Return                                                    ; endproc
 
                                   HALT                                                      ; END
 
@@ -494,30 +529,28 @@ _endif_0x000f                     Return                                        
 ;*************************************************************************************************************
 ;*************************************************************************************************************
 
-romCheck                          EQU     0x62a3
-multiply16bit                     EQU     0x61ad
-divide16bit                       EQU     0x60dd
-scanlineMode                      EQU     0x7ca1
-resetVideoFlags                   EQU     0x7aa3
-initClearFuncs                    EQU     0x65a9
-clearVertBlinds                   EQU     0x63a0
-clearCursorRow                    EQU     0x66a3
-clearCursorRow4x6                 EQU     0x61dc
-drawBlit_                         EQU     0x6aa1
-drawBlit                          EQU     0x7da0
-printInit                         EQU     0x68a2
-printInit4x6                      EQU     0x7ba2
-printText                         EQU     0x67a3
-printDigit                        EQU     0x60be
-printInt16                        EQU     0x63ca
-printChar                         EQU     0x62cc
-printChar4x6                      EQU     0x69a1
-printClip                         EQU     0x6ca0
-printClip4x6                      EQU     0x6ba0
-newLineScroll                     EQU     0x65b7
-newLineScroll4x6                  EQU     0x64be
-atTextCursor                      EQU     0x61b9
-atTextCursor4x6                   EQU     0x64a2
+romCheck                          EQU     0x5bd6
+multiply16bit                     EQU     0x5ba7
+divide16bit                       EQU     0x5aba
+scanlineMode                      EQU     0x7ea1
+resetVideoFlags                   EQU     0x7ca3
+initClearFuncs                    EQU     0x5ea9
+clearVertBlinds                   EQU     0x5ca2
+clearCursorRow                    EQU     0x5fa3
+clearCursorRow4x6                 EQU     0x5bb3
+drawBlit_                         EQU     0x63a1
+drawBlit                          EQU     0x7fa0
+printInit                         EQU     0x61a2
+printInit4x6                      EQU     0x7da2
+printText                         EQU     0x60a3
+printChar                         EQU     0x5ccc
+printChar4x6                      EQU     0x62a1
+printClip                         EQU     0x65a0
+printClip4x6                      EQU     0x64a0
+newLineScroll                     EQU     0x5eb7
+newLineScroll4x6                  EQU     0x5dbe
+atTextCursor                      EQU     0x5adc
+atTextCursor4x6                   EQU     0x5da2
 
 
 
@@ -831,51 +864,6 @@ printT_char         PEEKV+  textStr
                     BRA     printT_char
                     
 printT_exit         POP
-                    RET
-
-
-
-                    
-printDigit          PUSH
-                    STW     digitMult
-                    LDW     textNum
-printD_index        SUBW    digitMult
-                    BLT     printD_cont
-                    STW     textNum
-                    INC     digitIndex
-                    BRA     printD_index
-    
-printD_cont         LD      digitIndex
-                    BEQ     printD_exit
-                    ORI     0x30
-                    CALLI   printChar
-                    MOVQB   digitIndex, 0x30
-printD_exit         POP
-                    RET
-
-
-                    
-printInt16          PUSH
-                    STW     textNum
-                    CALLI   printInit
-                    MOVQB   digitIndex, 0
-                    LDW     textNum
-                    BGE     printI16_pos
-                    LDI     0x2D
-                    CALLI   printChar
-                    NEGW    textNum
-    
-printI16_pos        LDWI    10000
-                    CALLI   printDigit
-                    LDWI    1000
-                    CALLI   printDigit
-                    LDI     100
-                    CALLI   printDigit
-                    LDI     10
-                    CALLI   printDigit
-                    ORBK    textNum, 0x30
-                    CALLI   printChar
-                    POP
                     RET
 
 
