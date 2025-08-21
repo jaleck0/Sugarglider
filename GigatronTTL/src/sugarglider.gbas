@@ -12,20 +12,27 @@ free STRINGWORKAREA
 'defines the amount of contiguous RAM needed for blit stripes, (in this case 15*6 + 1), also min address and search direction
 _blitStripeChunks_ 15, &h3BA0, &h7FFF, descending
 
-def x, y, button, sp, dx, dy, ang, score, hiscore, objframe, spikex, spikey, coinx, coiny, asp
+def x, y, button, sp, dx, dy, ang, score, hiscore, objframe, spikex, spikey, coinx, coiny, asp, ht
 
 const lutsize = 64
-const maxspd = 2
-const angsp = 512
+const maxspd = 845
+const startspeed = 256
+const angsp = 768
 const grav = 10
 
-const checkbit = 16384
+const falldiv = 1
+const fallbase = 128
+const spdivup = 32 'speed reduction divider while going up
+const spdivdw = 32 'speed increse divider while going down
+
+const coinbonus = 128
+const spikedamage = 128
 
 const sw = 16
 const sh = 14
 
-const objw = 16
-const objh = 14
+const objw = 8
+const objh = 8
 
 const bt_left = &hfd
 const bt_right = &hfe
@@ -104,31 +111,61 @@ loop:
     button = get("BUTTON_STATE") 
 	objframe = objframe + 64
 	
-	call calcspeed
-	
 	if button == bt_right then ang = ang + angsp		'right
 	if button == bt_left  then ang = ang - angsp		'left
 	
+	if sp.hi AND 128 
+		sp = 0
+	endif
+	
+	if sp > 845
+		sp = 845
+	endif
+	
+	
+	
 	call calcdxdy
 	
-	at 0,0	
-	PRINT asp
+	
+	'at 100,2	
+	'PRINT score
 	'at 0,8	
-	'PRINT dx
+	'PRINT sp.hi
 	'at 0,16	
 	'PRINT dy
+	
 	
 	x = x + dx
 	y = y + dy
 	
+	if x.hi+16 > coinx.hi and x.hi < coinx.hi + 8	
+		if y.hi+14 > coiny.hi and y.hi < coiny.hi + 8
+			score = score + 1
+			sp = sp + coinbonus
+			call recoin
+		endif
+	endif
+	
+	if x.hi+16 > spikex.hi and x.hi < spikex.hi + 8	
+		if y.hi+14 > spikey.hi and y.hi < spikey.hi + 8
+			if ht == 0
+				score = score + 1
+				sp = sp + coinbonus
+				call recoin
+				ht = 120
+			endif
+		endif
+	endif
+	
 	if x.hi > 142 then x.hi = 1
 	if x.hi <= 0 then x.hi = 142
 	
+	if y <= 0 then y.hi = 0
 	if y.hi > 105 then y.hi = 105 : dy = -dy
-	if y.hi <= 4 then y.hi = 5
 	
-	blit NoFlip, spr_coin0 + (objframe.hi % 4), coinx, coiny
-	blit NoFlip, spr_spike0 + (objframe.hi % 3), spikex, spikey
+	
+	blit NoFlip, spr_coin0 + (objframe.hi % 4), coinx.hi, coiny.hi
+	blit NoFlip, spr_spike0 + (objframe.hi % 3), spikex.hi, spikey.hi
 	
 	call aniplayer
 
@@ -141,35 +178,45 @@ endproc
 
 proc resetLevel
     cls
+	
 endproc
 
 proc startLevel
    cls
+   score = 0
+
 endproc
 
 proc initVars
     x.hi = 71
-	y.hi = 54
+	y.hi = 30
 	
-	spikex = 120 
-	spikey = 40
+	spikex.hi = 120 
+	spikey.hi = 40
 	
-	coinx = 120
-	coiny = 75
+	coinx.hi = 120
+	coiny.hi = 75
 	
 	objframe = 0
 	
-	sp = maxspd
+	score = 0
+	
+	sp = startspeed
 	
 	dx = 0
 	dy = 0
+	
+	ht = 0
 	
 	ang = 0
 	
 	blit NoFlip, logo, 38, 16
 	
+	call printscore
+	
 	at 32,90
 	PRINT "PRESS A TO START"
+
 	
 endproc
 	
@@ -197,36 +244,6 @@ proc aniplayer
 	blit NoFlip, gspr, x.hi, y.hi
 endproc
 
-proc calcspeed
-	local abdx, abdy, bit , res, temp, tsp
-	
-	abdx = abs(dx)
-	abdy = abs(dy)
-	
-	tsp = abdx.hi * abdx + abdx.lo * abdx + abdy.hi * abdy + abdy.lo * abdy
-	
-	bit = checkbit
-	
-	'while bit > 0
-	'	temp = res OR bit
-	'	if (temp * temp <= tsp) 
-    '       res = tempaa
-    '    endif
-	'wend
-	
-	asp = tsp 
-	
-	
-endproc
-
-proc calcang
-	
-	
-	
-	if (dx == 0 && dy == 0) then return
-	
-	
-endproc
 
 proc calcdxdy 
 	'need to improve the speed by reducing the max determination time
@@ -236,27 +253,57 @@ proc calcdxdy
 	angpoint = (ang.hi AND 192)
 	
 	'angle between 0 and 63 meaning 0 and 90 deg
-	dx = sp * sinlut(lutsize - 1 - angindex) 
-	dy = sp * sinlut(angindex)
+	
 	
 	'angle between 192 and 255 meaning 270 and 360 deg
 	if (angpoint == 192)
-		dx = sp * sinlut(angindex)
-		dy = sp * -sinlut(lutsize - 1 - angindex)
+		
+		dx = sp.hi * sinlut(angindex)
+		dy = sp.hi * -sinlut(lutsize - 1 - angindex)
+		ang = ang + (sinlut(lutsize - 1 - angindex) / sp.hi) + fallbase
+		sp = sp - (sinlut(lutsize - 1 - angindex) / spdivup)
+		
 		return
 	endif
 	
 	'angle between 128 and 191 meaning 180 and 270 deg
 	if (angpoint == 128)
-		dx = sp * -sinlut(lutsize - 1 - angindex)
-		dy = sp * -sinlut(angindex)
+		
+		dx = sp.hi * -sinlut(lutsize - 1 - angindex)
+		dy = sp.hi * -sinlut(angindex)
+		ang = ang - (sinlut(angindex) / sp.hi) - fallbase
+		sp = sp - (sinlut(angindex) / spdivup)
+		
 		return
 	endif
 	
 	'angle between 64 and 127 meaning 90 and 180 deg
 	if (angpoint == 64)
-		dx = sp * -sinlut(angindex)
-		dy = sp * sinlut(lutsize - 1 - angindex)
+		
+		dx = sp.hi * -sinlut(angindex)
+		dy = sp.hi * sinlut(lutsize - 1 - angindex)
+		ang = ang - (sinlut(lutsize - 1 - angindex) / sp.hi) - fallbase
+		sp = sp + (sinlut(lutsize - 1 - angindex) / spdivdw)
+		
 		return
 	endif
+	
+	dx = sp.hi * sinlut(lutsize - 1 - angindex) 
+	dy = sp.hi * sinlut(angindex)
+	ang = ang + (sinlut(angindex) / sp.hi) + fallbase
+	sp = sp + (sinlut(angindex) / spdivdw)
+
+endproc
+
+proc recoin:
+	coinx.hi = rnd(150)
+	coiny.hi = rnd(110)
+	
+	call printscore
+	
+endproc
+
+proc printscore
+	at 36,4
+	PRINT score
 endproc
