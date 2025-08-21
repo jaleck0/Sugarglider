@@ -56,50 +56,57 @@ _init                             EQU                          0x022d
 _loop                             EQU                          0x0230
 _if_0x0000                        EQU                          0x0249
 _if_0x0001                        EQU                          0x0257
-_endif_0x0002                     EQU                          0x0261
-_endif_0x0003                     EQU                          0x026e
-_endif_0x0005                     EQU                          0x02c6
-_endif_0x0004                     EQU                          0x02c6
-_endif_0x0008                     EQU                          0x0324
-_endif_0x0007                     EQU                          0x0324
-_endif_0x0006                     EQU                          0x0324
-_if_0x0009                        EQU                          0x032d
-_if_0x000a                        EQU                          0x0336
-_if_0x000b                        EQU                          0x033e
-_if_0x000c                        EQU                          0x034a
-_initSystem                       EQU                          0x0380
-_resetLevel                       EQU                          0x038e
-_startLevel                       EQU                          0x0394
-_initVars                         EQU                          0x039d
-_waitScanline                     EQU                          0x03ea
-_repeat_0x000d                    EQU                          0x03eb
-_aniplayer                        EQU                          0x03f4
-_elseif_0x000e                    EQU                          0x0410
-_else_0x000f                      EQU                          0x041d
-_endif_0x0010                     EQU                          0x0420
-_endif_0x0011                     EQU                          0x042b
-_calcdxdy                         EQU                          0x043a
-_endif_0x0012                     EQU                          0x04ac
-_endif_0x0013                     EQU                          0x0514
-_endif_0x0014                     EQU                          0x0573
-_recoin                           EQU                          0x05bf
-_printscore                       EQU                          0x05d7
+_endif_0x0002                     EQU                          0x0264
+_endif_0x0003                     EQU                          0x0271
+_endif_0x0005                     EQU                          0x02ca
+_endif_0x0004                     EQU                          0x02ca
+_endif_0x0006                     EQU                          0x02d3
+_elseif_0x0009                    EQU                          0x0331
+_endif_0x000a                     EQU                          0x033e
+_endif_0x0008                     EQU                          0x033e
+_endif_0x0007                     EQU                          0x033e
+_endif_0x000b                     EQU                          0x0346
+_endif_0x000c                     EQU                          0x034e
+_if_0x000d                        EQU                          0x0357
+_if_0x000e                        EQU                          0x0360
+_if_0x000f                        EQU                          0x0368
+_if_0x0010                        EQU                          0x0374
+_initSystem                       EQU                          0x03aa
+_resetLevel                       EQU                          0x03b8
+_startLevel                       EQU                          0x03be
+_initVars                         EQU                          0x03c7
+_waitScanline                     EQU                          0x041d
+_repeat_0x0011                    EQU                          0x041e
+_aniplayer                        EQU                          0x0427
+_elseif_0x0012                    EQU                          0x0438
+_else_0x0013                      EQU                          0x0445
+_endif_0x0014                     EQU                          0x0448
+_endif_0x0015                     EQU                          0x0453
+_calcdxdy                         EQU                          0x0462
+_endif_0x0016                     EQU                          0x04d6
+_endif_0x0017                     EQU                          0x0542
+_endif_0x0018                     EQU                          0x05a3
+_recoin                           EQU                          0x05f1
+_respike                          EQU                          0x0609
+_printscore                       EQU                          0x061d
 _page_0x0300                      EQU                          0x0300
 _page_0x0400                      EQU                          0x0400
 _page_0x0500                      EQU                          0x0500
+_page_0x0600                      EQU                          0x0600
 
 ; Constants
 _lutsize                          EQU                          0x0040
 _maxspd                           EQU                          0x034d
-_startspeed                       EQU                          0x0100
-_angsp                            EQU                          0x0300
+_startspeed                       EQU                          0x0180
+_boostspeed                       EQU                          0x0300
+_angsp                            EQU                          0x0400
 _grav                             EQU                          0x000a
 _falldiv                          EQU                          0x0001
-_fallbase                         EQU                          0x0080
+_fallbase                         EQU                          0x0100
 _spdivup                          EQU                          0x0020
 _spdivdw                          EQU                          0x0020
 _coinbonus                        EQU                          0x0080
-_spikedamage                      EQU                          0x0080
+_spikedamage                      EQU                          0x0020
 _sw                               EQU                          0x0010
 _sh                               EQU                          0x000e
 _objw                             EQU                          0x0008
@@ -121,6 +128,7 @@ _spr_coin3                        EQU                          0x000a
 _spr_spike0                       EQU                          0x000b
 _spr_spike1                       EQU                          0x000c
 _spr_spike2                       EQU                          0x000d
+_spr_anti                         EQU                          0x000f
 
 ; Global Variables
 _x                                EQU                          0x0030
@@ -262,6 +270,10 @@ def_blits_0x53cf                  EQU                          0x53cf
 def_blits_0x53cf                  DB                           0 0 0 0 63 0 0 0 63 63 63 63 0 0 63 0 0 0 0 0 0 63 0 63 0 0 0 63 0 63 0 0 63 63 0 0 0 0 0 63 0 63 0 0 0 63 63 0 248 
 def_blits_0x52cf                  EQU                          0x52cf
 def_blits_0x52cf                  DB                           0 63 63 0 0 0 63 0 63 0 0 0 0 0 63 63 0 0 63 0 63 0 0 0 63 0 63 0 0 0 0 0 0 63 0 0 63 63 63 63 0 0 0 63 0 0 0 0 248 
+def_blits_0x51cf                  EQU                          0x51cf
+def_blits_0x51cf                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 248 
+def_blits_0x50cf                  EQU                          0x50cf
+def_blits_0x50cf                  DB                           0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 248 
 
 ; Define Fonts
 
@@ -282,8 +294,8 @@ _blitLut_0x68a9                   EQU                          0x68a9
 _blitLut_0x68a9                   DW                           0x73ab 0x0000 0x72ab 0x0006 0x71ab 0x000c 0x0000
 _blitLut_0x67a9                   EQU                          0x67a9
 _blitLut_0x67a9                   DW                           0x70a5 0x0000 0x6fa5 0x0006 0x6ea5 0x000c 0x0000
-_blitLut_0x51c6                   EQU                          0x51c6
-_blitLut_0x51c6                   DW                           0x6db7 0x0000 0x6cb7 0x0006 0x6bb7 0x000c 0x6ab7 0x0012 0x69b7 0x0018 0x68b7 0x001e 0x67b7 0x0024 0x66b7 0x002a 0x65b7 0x0030 0x64b7 0x0036 0x63b7 0x003c 0x62b7 0x0042 0x61b7 0x0048 0x60b7 0x004e 0x0000
+_blitLut_0x4fc6                   EQU                          0x4fc6
+_blitLut_0x4fc6                   DW                           0x6db7 0x0000 0x6cb7 0x0006 0x6bb7 0x000c 0x6ab7 0x0012 0x69b7 0x0018 0x68b7 0x001e 0x67b7 0x0024 0x66b7 0x002a 0x65b7 0x0030 0x64b7 0x0036 0x63b7 0x003c 0x62b7 0x0042 0x61b7 0x0048 0x60b7 0x004e 0x0000
 _blitLut_0x7fa1                   EQU                          0x7fa1
 _blitLut_0x7fa1                   DW                           0x5fcf 0x0000 0x5ecf 0x0006 0x0000
 _blitLut_0x7ea1                   EQU                          0x7ea1
@@ -298,8 +310,10 @@ _blitLut_0x7aa1                   EQU                          0x7aa1
 _blitLut_0x7aa1                   DW                           0x55cf 0x0000 0x54cf 0x0006 0x0000
 _blitLut_0x76a1                   EQU                          0x76a1
 _blitLut_0x76a1                   DW                           0x53cf 0x0000 0x52cf 0x0006 0x0000
-_blitsLut_                        EQU                          0x5fb3
-_blitsLut_                        DW                           0x6ca9 0x6ba9 0x6aa9 0x69a9 0x68a9 0x67a9 0x51c6 0x7fa1 0x7ea1 0x7da1 0x7ca1 0x7ba1 0x7aa1 0x76a1 
+_blitLut_0x75a1                   EQU                          0x75a1
+_blitLut_0x75a1                   DW                           0x51cf 0x0000 0x50cf 0x0006 0x0000
+_blitsLut_                        EQU                          0x5fb1
+_blitsLut_                        DW                           0x6ca9 0x6ba9 0x6aa9 0x69a9 0x68a9 0x67a9 0x4fc6 0x7fa1 0x7ea1 0x7da1 0x7ca1 0x7ba1 0x7aa1 0x76a1 0x75a1 
 
 ; Lazy Constants
 
@@ -327,30 +341,32 @@ _loop                             CALLI                        _waitScanline    
                                   CMPI                         _button, 254
                                   JNE                          _if_0x0000
                                   LDW                          _ang
-                                  ADDWI                        768
+                                  ADDWI                        1024
                                   STW                          _ang                         ; if button == bt_right then ang = ang + angsp
 
 _if_0x0000                        CMPI                         _button, 253
                                   JNE                          _if_0x0001
                                   LDW                          _ang
-                                  SUBWI                        768
+                                  SUBWI                        1024
                                   STW                          _ang                         ; if button == bt_left  then ang = ang - angsp
 
-_if_0x0001                        ANDBK                        _sp + 1, 0x80
+_if_0x0001                        CALLI                        _calcdxdy                    ; call calcdxdy
+
+                                  ANDBK                        _sp + 1, 0x80
                                   JumpFalse                    _endif_0x0002                ; if sp.hi AND 128
 
                                   MOVQW                        _sp, 0                       ; sp = 0
 
 _endif_0x0002                     LDWI                         845
                                   SUBW                         _sp
-                                  JGE                          _endif_0x0003                ; if sp > 845
+                                  JGE                          _endif_0x0003                ; if sp > maxspd
 
                                   LDWI                         845
-                                  STW                          _sp                          ; sp = 845
+                                  STW                          _sp                          ; sp = maxspd
 
-_endif_0x0003                     CALLI                        _calcdxdy                    ; call calcdxdy
+_endif_0x0003                     SUBVW                        _spikex, _dx, _spikex        ; spikex = spikex - dx
 
-                                  ADDVW                        _x, _dx, _x                  ; x = x + dx
+                                  SUBVW                        _coinx, _dx, _coinx          ; coinx = coinx - dx
 
                                   ADDVW                        _y, _dy, _y                  ; y = y + dy
 
@@ -394,7 +410,12 @@ _endif_0x0003                     CALLI                        _calcdxdy        
 
                                   CALLI                        _recoin                      ; call recoin
 
-_endif_0x0004                     LD                           _x + 1
+_endif_0x0004                     LDW                          _ht
+                                  JLE                          _endif_0x0006                ; if ht > 0
+
+                                  SUBVI                        _ht, _ht, 1                  ; ht = ht - 1
+
+_endif_0x0006                     LD                           _x + 1
                                   ADDI                         16
                                   STW                          register14
                                   LD                           _spikex + 1
@@ -409,55 +430,71 @@ _endif_0x0004                     LD                           _x + 1
                                   SUBW                         0xea
                                   TLT                          giga_vAC
                                   ANDW                         0xe8
-                                  JumpFalse                    _endif_0x0006                ; if x.hi+16 > spikex.hi and x.hi < spikex.hi + 8
+                                  JumpFalse                    _endif_0x0007                ; if x.hi+16 > spikex.hi and x.hi < spikex.hi + 8
 
                                   LD                           _y + 1
-                                  ADDI                         14
+                                  CALLI                        _page_0x0300
+_page_0x0300                      ADDI                         14
                                   STW                          register14
                                   LD                           _spikey + 1
                                   STW                          register15
                                   LDW                          register14
                                   SUBW                         register15
                                   TGT                          0xe8
-                                  CALLI                        _page_0x0300
-_page_0x0300                      LD                           _spikey + 1
+                                  LD                           _spikey + 1
                                   ADDI                         8
                                   STW                          0xea
                                   LD                           _y + 1
                                   SUBW                         0xea
                                   TLT                          giga_vAC
                                   ANDW                         0xe8
-                                  JumpFalse                    _endif_0x0007                ; if y.hi+14 > spikey.hi and y.hi < spikey.hi + 8
+                                  JumpFalse                    _endif_0x0008                ; if y.hi+14 > spikey.hi and y.hi < spikey.hi + 8
 
-                                  LDW                          _ht
-                                  JNE                          _endif_0x0008                ; if ht == 0
+                                  LDWI                         768
+                                  SUBW                         _sp
+                                  JGE                          _elseif_0x0009               ; if sp > boostspeed
+
+                                  CALLI                        _respike                     ; call respike
 
                                   ADDVI                        _score, _score, 1            ; score = score + 1
 
-                                  ADDVI                        _sp, _sp, 128                ; sp = sp + coinbonus
+                                  CALLI                        _endif_0x000a
+_elseif_0x0009                    LDW                          _ht
+                                  JNE                          _endif_0x000a                ; elseif ht == 0
+
+                                  LDWI                         256
+                                  STW                          _sp                          ; sp = 256
+
+                                  MOVQW                        _ht, 240                     ; ht = 240
+
+_endif_0x0007                     LDW                          _coinx
+                                  JGE                          _endif_0x000b                ; if coinx < 0
 
                                   CALLI                        _recoin                      ; call recoin
 
-                                  MOVQW                        _ht, 120                     ; ht = 120
+_endif_0x000b                     LDW                          _spikex
+                                  JGE                          _endif_0x000c                ; if spikex < 0
 
-_endif_0x0006                     CMPI                         _x + 1, 142
-                                  JLE                          _if_0x0009
+                                  CALLI                        _respike                     ; call respike
+
+_endif_0x000c                     CMPI                         _x + 1, 142
+                                  JLE                          _if_0x000d
                                   MOVQB                        _x + 1, 1                    ; if x.hi > 142 then x.hi = 1
 
-_if_0x0009                        CMPI                         _x + 1, 0
-                                  JGT                          _if_0x000a
+_if_0x000d                        CMPI                         _x + 1, 0
+                                  JGT                          _if_0x000e
                                   MOVQB                        _x + 1, 142                  ; if x.hi <= 0 then x.hi = 142
 
-_if_0x000a                        LDW                          _y
-                                  JGT                          _if_0x000b
+_if_0x000e                        LDW                          _y
+                                  JGT                          _if_0x000f
                                   MOVQB                        _y + 1, 0                    ; if y <= 0 then y.hi = 0
 
-_if_0x000b                        CMPI                         _y + 1, 105
-                                  JLE                          _if_0x000c
+_if_0x000f                        CMPI                         _y + 1, 105
+                                  JLE                          _if_0x0010
                                   MOVQB                        _y + 1, 105
                                   NEGW                         _dy                          ; if y.hi > 105 then y.hi = 105 : dy = -dy
 
-_if_0x000c                        LD                           _objframe + 1
+_if_0x0010                        LD                           _objframe + 1
                                   STW                          giga_sysArg0
                                   MOVQW                        giga_sysArg2, 4
                                   CALLI                        divide16bit
@@ -521,7 +558,7 @@ _initVars                         PUSH                                          
 
                                   MOVQW                        _score, 0                    ; score = 0
 
-                                  LDWI                         256
+                                  LDWI                         384
                                   STW                          _sp                          ; sp = startspeed
 
                                   MOVQW                        _dx, 0                       ; dx = 0
@@ -534,7 +571,8 @@ _initVars                         PUSH                                          
 
                                   MOVQW                        blitId, 6
                                   MOVQB                        blitXY, 38
-                                  MOVQB                        blitXY + 1, 24
+                                  CALLI                        _page_0x0400
+_page_0x0400                      MOVQB                        blitXY + 1, 24
                                   DrawBlit                                                  ; blit NoFlip, logo, 38, 16
 
                                   CALLI                        _printscore                  ; call printscore
@@ -550,42 +588,41 @@ _initVars                         PUSH                                          
 
 _waitScanline                     PUSH                                                      ; proc waitScanline
 
-_repeat_0x000d                    ANDBK                        giga_videoY, 0x01
-                                  JumpFalse                    _repeat_0x000d               ; until (get("VIDEO_Y") AND 1)
+_repeat_0x0011                    ANDBK                        giga_videoY, 0x01
+                                  JumpFalse                    _repeat_0x0011               ; until (get("VIDEO_Y") AND 1)
 
                                   Return                                                    ; endproc
 
 _aniplayer                        PUSH                                                      ; proc aniplayer
 
-                                  CALLI                        _page_0x0400
-_page_0x0400                      MOVQW                        _aniplayer_gspr, 0           ; gspr = 0
+                                  MOVQW                        _aniplayer_gspr, 0           ; gspr = 0
 
                                   LDW                          _dy
                                   SUBI                         128
-                                  JLE                          _elseif_0x000e               ; if dy > 128
+                                  JLE                          _elseif_0x0012               ; if dy > 128
 
                                   MOVQW                        _aniplayer_gspr, 2           ; gspr = glider_dw
 
-                                  CALLI                        _endif_0x0010
-_elseif_0x000e                    LDNI                         128
+                                  CALLI                        _endif_0x0014
+_elseif_0x0012                    LDNI                         128
                                   SUBW                         _dy
-                                  JLE                          _else_0x000f                 ; elseif dy < -128
+                                  JLE                          _else_0x0013                 ; elseif dy < -128
 
                                   MOVQW                        _aniplayer_gspr, 0           ; gspr = glider_up
 
-                                  CALLI                        _endif_0x0010                ; else
+                                  CALLI                        _endif_0x0014                ; else
 
-_else_0x000f                      MOVQW                        _aniplayer_gspr, 1           ; gspr = glider_nt
+_else_0x0013                      MOVQW                        _aniplayer_gspr, 1           ; gspr = glider_nt
 
-_endif_0x0010                     ANDBK                        _dx + 1, 0x80
-                                  JumpFalse                    _endif_0x0011                ; if (dx.hi AND 128)
+_endif_0x0014                     ANDBK                        _dx + 1, 0x80
+                                  JumpFalse                    _endif_0x0015                ; if (dx.hi AND 128)
 
                                   ADDVI                        _aniplayer_gspr, _aniplayer_gspr, 3                                                                                      ; gspr = gspr + glider_lup
 
-_endif_0x0011                     MOVWA                        _aniplayer_gspr, blitId
-                                  MOVB                         _x + 1, blitXY
+_endif_0x0015                     MOVWA                        _aniplayer_gspr, blitId
+                                  MOVQB                        blitXY, 70
                                   ADDBI                        _y + 1, blitXY + 1, 8
-                                  DrawBlit                                                  ; blit NoFlip, gspr, x.hi, y.hi
+                                  DrawBlit                                                  ; blit NoFlip, gspr, 70, y.hi
 
                                   Return                                                    ; endproc
 
@@ -601,7 +638,7 @@ _calcdxdy                         PUSH                                          
                                   STW                          _calcdxdy_angpoint           ; angpoint = (ang.hi AND 192)
 
                                   CMPI                         _calcdxdy_angpoint, 192
-                                  JNE                          _endif_0x0012                ; if (angpoint == 192)
+                                  JNE                          _endif_0x0016                ; if (angpoint == 192)
 
                                   LDARRW                       _calcdxdy_angindex, 0x0680
                                   STW                          0xe8
@@ -631,7 +668,7 @@ _calcdxdy                         PUSH                                          
                                   STW                          giga_sysArg2
                                   CALLI                        divide16bit
                                   ADDW                         _ang
-                                  ADDI                         128
+                                  ADDWI                        256
                                   STW                          _ang                         ; ang = ang + (sinlut(lutsize - 1 - angindex) / sp.hi) + fallbase
 
                                   LDI                          63
@@ -645,8 +682,8 @@ _calcdxdy                         PUSH                                          
 
                                   Return                                                    ; return
 
-_endif_0x0012                     CMPI                         _calcdxdy_angpoint, 128
-                                  JNE                          _endif_0x0013                ; if (angpoint == 128)
+_endif_0x0016                     CMPI                         _calcdxdy_angpoint, 128
+                                  JNE                          _endif_0x0017                ; if (angpoint == 128)
 
                                   LDI                          63
                                   SUBW                         _calcdxdy_angindex
@@ -660,7 +697,8 @@ _endif_0x0012                     CMPI                         _calcdxdy_angpoin
                                   CALLI                        multiply16bit
                                   STW                          _dx                          ; dx = sp.hi * -sinlut(lutsize - 1 - angindex)
 
-                                  LDARRW                       _calcdxdy_angindex, 0x0680
+                                  CALLI                        _page_0x0500
+_page_0x0500                      LDARRW                       _calcdxdy_angindex, 0x0680
                                   NEGW                         giga_vAC
                                   STW                          0xea
                                   LD                           _sp + 1
@@ -677,11 +715,10 @@ _endif_0x0012                     CMPI                         _calcdxdy_angpoin
                                   STW                          0xe8
                                   LDW                          _ang
                                   SUBW                         0xe8
-                                  SUBI                         128
+                                  SUBWI                        256
                                   STW                          _ang                         ; ang = ang - (sinlut(angindex) / sp.hi) - fallbase
 
-                                  CALLI                        _page_0x0500
-_page_0x0500                      LDARRW                       _calcdxdy_angindex, 0x0680
+                                  LDARRW                       _calcdxdy_angindex, 0x0680
                                   STW                          giga_sysArg0
                                   MOVQW                        giga_sysArg2, 32
                                   CALLI                        divide16bit
@@ -690,8 +727,8 @@ _page_0x0500                      LDARRW                       _calcdxdy_anginde
 
                                   Return                                                    ; return
 
-_endif_0x0013                     CMPI                         _calcdxdy_angpoint, 64
-                                  JNE                          _endif_0x0014                ; if (angpoint == 64)
+_endif_0x0017                     CMPI                         _calcdxdy_angpoint, 64
+                                  JNE                          _endif_0x0018                ; if (angpoint == 64)
 
                                   LDARRW                       _calcdxdy_angindex, 0x0680
                                   NEGW                         giga_vAC
@@ -722,7 +759,7 @@ _endif_0x0013                     CMPI                         _calcdxdy_angpoin
                                   STW                          0xea
                                   LDW                          _ang
                                   SUBW                         0xea
-                                  SUBI                         128
+                                  SUBWI                        256
                                   STW                          _ang                         ; ang = ang - (sinlut(lutsize - 1 - angindex) / sp.hi) - fallbase
 
                                   LDI                          63
@@ -736,7 +773,7 @@ _endif_0x0013                     CMPI                         _calcdxdy_angpoin
 
                                   Return                                                    ; return
 
-_endif_0x0014                     LDI                          63
+_endif_0x0018                     LDI                          63
                                   SUBW                         _calcdxdy_angindex
                                   ARRW                         0x0680
                                   DEEKA                        0xea
@@ -760,7 +797,7 @@ _endif_0x0014                     LDI                          63
                                   STW                          giga_sysArg2
                                   CALLI                        divide16bit
                                   ADDW                         _ang
-                                  ADDI                         128
+                                  ADDWI                        256
                                   STW                          _ang                         ; ang = ang + (sinlut(angindex) / sp.hi) + fallbase
 
                                   LDARRW                       _calcdxdy_angindex, 0x0680
@@ -774,13 +811,26 @@ _endif_0x0014                     LDI                          63
 
 _recoin                           PUSH                                                      ; proc recoin:
 
-                                  LDI                          0x96
-                                  RandFastMod                  
-                                  ST                           _coinx + 1                   ; coinx.hi = rnd(150)
+                                  MOVQB                        _coinx + 1, 127              ; coinx.hi = 127
 
-                                  LDI                          0x6e
+                                  LDI                          0x64
                                   RandFastMod                  
-                                  ST                           _coiny + 1                   ; coiny.hi = rnd(110)
+                                  CALLI                        _page_0x0600
+_page_0x0600                      ADDI                         10
+                                  ST                           _coiny + 1                   ; coiny.hi = 10 + rnd(100)
+
+                                  CALLI                        _printscore                  ; call printscore
+
+                                  Return                                                    ; endproc
+
+_respike                          PUSH                                                      ; proc respike:
+
+                                  MOVQB                        _spikex + 1, 127             ; spikex.hi = 127
+
+                                  LDI                          0x64
+                                  RandFastMod                  
+                                  ADDI                         10
+                                  ST                           _spikey + 1                  ; spikey.hi = 10 + rnd(100)
 
                                   CALLI                        _printscore                  ; call printscore
 
@@ -809,29 +859,29 @@ _printscore                       PUSH                                          
 ;*************************************************************************************************************
 
 romCheck                          EQU     0x5da6
-multiply16bit                     EQU     0x5fa7
+multiply16bit                     EQU     0x5fa5
 divide16bit                       EQU     0x59ad
 randFastMod16bit                  EQU     0x56b6
-fastMod168bit                     EQU     0x75a0
-scanlineMode                      EQU     0x73a1
-resetVideoFlags                   EQU     0x71a3
+fastMod168bit                     EQU     0x74a0
+scanlineMode                      EQU     0x72a1
+resetVideoFlags                   EQU     0x6ca1
 initClearFuncs                    EQU     0x60a9
 clearVertBlinds                   EQU     0x5ea5
 clearCursorRow                    EQU     0x5cac
 clearCursorRow4x6                 EQU     0x5bac
 drawBlit_                         EQU     0x64a1
-drawBlit                          EQU     0x74a0
+drawBlit                          EQU     0x73a0
 printInit                         EQU     0x62a2
-printInit4x6                      EQU     0x72a2
+printInit4x6                      EQU     0x71a2
 printText                         EQU     0x61a3
 printDigit                        EQU     0x58b0
-printInt16                        EQU     0x4eca
-printChar                         EQU     0x4dcc
+printInt16                        EQU     0x4cca
+printChar                         EQU     0x4bcc
 printChar4x6                      EQU     0x63a1
 printClip                         EQU     0x66a0
 printClip4x6                      EQU     0x65a0
-newLineScroll                     EQU     0x50b7
-newLineScroll4x6                  EQU     0x4fbe
+newLineScroll                     EQU     0x4eb7
+newLineScroll4x6                  EQU     0x4dbe
 atTextCursor                      EQU     0x5aac
 atTextCursor4x6                   EQU     0x57b3
 

@@ -15,18 +15,22 @@ _blitStripeChunks_ 15, &h3BA0, &h7FFF, descending
 def x, y, button, sp, dx, dy, ang, score, hiscore, objframe, spikex, spikey, coinx, coiny, asp, ht
 
 const lutsize = 64
+
 const maxspd = 845
-const startspeed = 256
-const angsp = 768
+
+const startspeed = 384
+const boostspeed = 768
+
+const angsp = 1024
 const grav = 10
 
 const falldiv = 1
-const fallbase = 128
+const fallbase = 256
 const spdivup = 32 'speed reduction divider while going up
 const spdivdw = 32 'speed increse divider while going down
 
 const coinbonus = 128
-const spikedamage = 128
+const spikedamage = 32
 
 const sw = 16
 const sh = 14
@@ -93,6 +97,9 @@ load blit, ../img/spike1.tga, spr_spike1 + 0, NoFlip
 const spr_spike2 = 13
 load blit, ../img/spike2.tga, spr_spike2 + 0, NoFlip
 
+const spr_anti = 15
+load blit, ../img/antiobj.tga, spr_anti + 0, NoFlip
+
 
 call initSystem
 
@@ -106,25 +113,27 @@ init:
     call initVars
 
 loop:
+	call waitScanline
 	
-    call waitScanline
     button = get("BUTTON_STATE") 
 	objframe = objframe + 64
 	
-	if button == bt_right then ang = ang + angsp		'right
-	if button == bt_left  then ang = ang - angsp		'left
+	if button == bt_right then ang = ang + angsp	'right
+	if button == bt_left  then ang = ang - angsp	'left
+	
+	
+	
+	
+	
+	call calcdxdy
 	
 	if sp.hi AND 128 
 		sp = 0
 	endif
 	
-	if sp > 845
-		sp = 845
+	if sp > maxspd
+		sp = maxspd
 	endif
-	
-	
-	
-	call calcdxdy
 	
 	
 	'at 100,2	
@@ -135,7 +144,10 @@ loop:
 	'PRINT dy
 	
 	
-	x = x + dx
+	'x = x + dx
+	spikex = spikex - dx
+	coinx = coinx - dx
+	
 	y = y + dy
 	
 	if x.hi+16 > coinx.hi and x.hi < coinx.hi + 8	
@@ -146,15 +158,29 @@ loop:
 		endif
 	endif
 	
+	if ht > 0
+		ht = ht - 1
+	endif
+	
 	if x.hi+16 > spikex.hi and x.hi < spikex.hi + 8	
 		if y.hi+14 > spikey.hi and y.hi < spikey.hi + 8
-			if ht == 0
+			
+			if sp > boostspeed 
+				call respike
 				score = score + 1
-				sp = sp + coinbonus
-				call recoin
-				ht = 120
+			elseif ht == 0
+				sp = 256
+				ht = 240
 			endif
 		endif
+	endif
+	
+	if coinx < 0 
+		call recoin
+	endif
+	
+	if spikex < 0 
+		call respike
 	endif
 	
 	if x.hi > 142 then x.hi = 1
@@ -216,8 +242,6 @@ proc initVars
 	
 	at 32,90
 	PRINT "PRESS A TO START"
-
-	
 endproc
 	
 proc waitScanline
@@ -241,7 +265,7 @@ proc aniplayer
 		gspr = gspr + glider_lup
 	endif
 	
-	blit NoFlip, gspr, x.hi, y.hi
+	blit NoFlip, gspr, 70, y.hi
 endproc
 
 
@@ -251,8 +275,6 @@ proc calcdxdy
 	
 	angindex = ang.hi%64
 	angpoint = (ang.hi AND 192)
-	
-	'angle between 0 and 63 meaning 0 and 90 deg
 	
 	
 	'angle between 192 and 255 meaning 270 and 360 deg
@@ -288,6 +310,7 @@ proc calcdxdy
 		return
 	endif
 	
+	'angle between 0 and 63 meaning 0 and 90 deg
 	dx = sp.hi * sinlut(lutsize - 1 - angindex) 
 	dy = sp.hi * sinlut(angindex)
 	ang = ang + (sinlut(angindex) / sp.hi) + fallbase
@@ -296,11 +319,17 @@ proc calcdxdy
 endproc
 
 proc recoin:
-	coinx.hi = rnd(150)
-	coiny.hi = rnd(110)
+	coinx.hi = 127
+	coiny.hi = 10 + rnd(100)
 	
 	call printscore
+endproc
+
+proc respike:
+	spikex.hi = 127
+	spikey.hi = 10 + rnd(100)
 	
+	call printscore
 endproc
 
 proc printscore
